@@ -1,0 +1,17 @@
+Package: bergreg
+Type: Package
+Title: BerG Regression for Count Data
+Version: 0.1.0
+Authors@R: 
+    person(given = "Rodrigo",
+           family = "Medeiros",
+           role = c("aut", "cre"),
+           email = "rodrigo.matheus@live.com")
+Description: A regression model for modeling overdispersed,
+    equidispersed, and underdispersed count data, where
+    it is assumed that dependent variables are
+    distributed according to the BerG distribution.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
