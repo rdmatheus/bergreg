@@ -75,33 +75,35 @@
 #'
 #' @examples
 #' # Dataset: grazing
-#'
 #' data(grazing)
-#' attach(grazing); head(grazing)
+#' head(grazing)
 #'
+#' layout(matrix(c(1, 2, 1, 3), 2, 2))
 #' # Response variable (Number of understorey birds)
-#' plot(table(birds), xlab = "Number of understorey birds", ylab = "Frequency")
+#' barplot(table(grazing$birds), xlab = "Number of understorey birds", ylab = "Frequency")
 #'
 #' # Explanatory variables
-#' boxplot(split(birds, when), ylab = "Number of understorey birds",
+#' boxplot(birds ~ when, grazing, ylab = "Number of understorey birds",
 #'         xlab = "When the bird count was conduct", pch = 16)
-#' boxplot(split(birds, grazed), ylab = "Number of understorey birds",
+#' boxplot(birds ~ grazed, grazing, ylab = "Number of understorey birds",
 #'         xlab = " Which side of the stockproof fence", pch = 16)
-#'
+#' layout(1)
 #'
 #' # Fit of the BerG regression model with varying dispersion
-#' fit_disp <- glm.bg(birds ~ when + grazed | when + grazed, data = grazing)
+#' fit_disp <- bergreg(birds ~ when + grazed | when + grazed, data = grazing)
 #' summary(fit_disp)
 #'
 #' # Fit of the BerG regression model with constant dispersion
-#' fit <- glm.bg(birds ~ when + grazed, data = grazing, link.phi = "identity")
+#' fit <- bergreg(birds ~ when + grazed, data = grazing, link.phi = "identity")
 #' summary(fit)
 #'
 #' # Diagnostic
-#' plot(fit)
-#' envel_berg(fit)
+#' layout(matrix(c(1, 3, 5, 2, 4, 5), 3, 2))
+#' plot(fit, ask = FALSE)
+#' plot(fit, which = 3:4, ask = FALSE)
+#' plot(fit, which = 5, ask = FALSE)
+#' layout(1)
 #'
-#' detach(grazing)
 NULL
 
 #' @rdname bergreg
