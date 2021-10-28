@@ -1,6 +1,9 @@
 #' @name bergreg-methods
 #' @title Methods for 'bergreg' objects
-#' @param object an object of class \code{bergreg}.
+#' @param x,object an object of class \code{bergreg}.
+#' @param k numeric, the penalty per parameter to be used; the default
+#'     \code{k = 2} is the classical AIC.
+#' @param ... further arguments passed to or from other methods.
 #'
 #' @author Rodrigo M. R. Medeiros <\email{rodrigo.matheus@live.com}>
 NULL
@@ -31,7 +34,7 @@ print.bergreg <- function(x, ...)
         "and BIC:", log(n) * (p + k) - 2 * x$logLik)
   #}
 
-  #invisible(x)
+  invisible(x)
 }
 
 # Summary
@@ -191,7 +194,7 @@ vcov.bergreg <- function(object,
   if (p > 1) {
     mean_names <- colnames(X)
   }else{
-    if (object$link == "identity"){
+    if (object$link$mean == "identity"){
       mean_names <- "mu"
     }else{
       mean_names <- "g1(mu)"
@@ -201,7 +204,7 @@ vcov.bergreg <- function(object,
   if (k > 1) {
     disp_names <- colnames(Z)
   }else{
-    if (object$linklink.phi == "identity"){
+    if (object$link$dispersion == "identity"){
       disp_names <- "phi"
     }else{
       disp_names <- "g2(phi)"
@@ -229,13 +232,38 @@ vcov.bergreg <- function(object,
 
 }
 
-#  Predict
-#' @rdname bergreg-methods
+
+#' Predict Method for BerG Fits
+#'
+#' Obtains predictions from a fitted BerG regression object.
+#'
+#' @param object an \code{'bergreg'} object.
+#' @param newdata optionally, a data frame in which to look for variables
+#'     with which to predict. If omitted, the fitted linear predictors are
+#'     used.
+#' @param type the type of prediction required. The default is on the scale of
+#'     the response variable \code{("response")}, that is, the fitted values
+#'     (fitted means). The alternative \code{"link"} is on the scale of
+#'     the linear predictors, that is, predictions are of log-means. The
+#'     specification \code{"dispersion"} provides the fitted dispersion
+#'     indixes, while \code{"variance"} provides the fitted variances. Finally,
+#'     the option \code{"quantile"} gives the fitted quantiles in the order
+#'     specified via \code{'at'}.
+#' @param at the order of the quantile to be predicted if
+#'     \code{type = "quantile"}. The default is to predict the median,
+#'     that is, \code{at = 0.5}.
+#' @param na.action function determining what should be done with missing
+#'     values in newdata. The default is to predict \code{NA}.
+#' @param ...  arguments passed to or from other methods.
+#'
+#' @return A vector of predictions.
 #' @export
+#'
 predict.bergreg <- function(object, newdata = NULL,
                            type = c("response", "link", "dispersion",
                                     "variance", "quantile"),
-                           na.action = stats::na.pass, at = 0.5, ...)
+                           at = 0.5,
+                           na.action = stats::na.pass, ...)
 {
   type <- match.arg(type)
 
@@ -362,8 +390,18 @@ AIC.bergreg <- function(object, ..., k = 2) {
   return(AIC)
 }
 
-#' @rdname bergreg-methods
+# Residuals
+#' @name residuals.bergreg
+#' @title Extract Model Residuals for a BerG Regression
+#'
+#' @param object an \code{'bergreg'} object.
+#' @param type character; specifies which residual should be extracted.
+#'     The available arguments are "quantile" (default), "pearson",
+#'     and "response" (raw residuals, y - mu).
+#' @param ... further arguments passed to or from other methods.
+#'
 #' @export
+#'
 residuals.bergreg <- function(object,
                             type = c("quantile", "pearson", "response"), ...)
 {
@@ -413,8 +451,6 @@ residuals.bergreg <- function(object,
 }
 
 ## Model frame
-#' @export
-#' @rdname bergreg-methods
 model.frame.bergreg <- function(formula, ...) {
   formula$terms <- formula$terms$full
   formula$call$formula <- formula$formula <- formula(formula$terms)
@@ -433,27 +469,30 @@ model.matrix.bergreg <- function(object,
 }
 
 # Plot
-#' @name plot.bergreg
-#' @title Diagnostic plots for the Unit Gamma regression with parametric link
-#'  function
+#' Diagnostic plots for the BerG Regression
+#'
+#' Five plots (selectable by \code{which}) are currently available:
+#' a plot of residuals against fitted values, a plot of residuals against
+#' the indexes, a Normal Q-Q plot, a barplot with comparisons of the
+#' observed and fitted frequencies, and a plot of the sample autocorelations
+#' of the residuals.
+#'
+#' @param x an object of class \code{bergreg}.
 #' @param type character; specifies which residual should be produced
 #'     in the summary plot. The available arguments are "quantile", "pearson",
-#'     "response" (raw residuals, y - mu), and "deviance".
-#' @param which numeric. If a subset of the plots is required, specify a subset
+#'     and "response" (raw residuals, y - mu).
+#' @param which numeric; if a subset of the plots is required, specify a subset
 #'     of the numbers 1:5.
-#' @param ask logical. If \code{TRUE}, the user is asked before each plot.
-#' @param nsim numeric. Number of simulations in normal probability plots.
-#' @param level numeric. Confidence level in normal probability plots.
+#' @param ask logical; if \code{TRUE}, the user is asked before each plot.
+#' @param ... further arguments passed to or from other methods.
 #'
 #' @export
 #'
 plot.bergreg <- function(x, type = c("quantile", "pearson", "response"),
-                       which = 1:2,
-                       ask = prod(graphics::par("mfcol")) < length(which) &&
+                         which = 1:2,
+                         ask = prod(graphics::par("mfcol")) < length(which) &&
                          grDevices::dev.interactive(),
-                       nsim = 99,
-                       level = 0.95,
-                       ...)
+                         ...)
 {
   if(!is.numeric(which) || any(which < 1) || any(which > 5))
     stop("`which' must be in 1:5")
@@ -482,14 +521,14 @@ plot.bergreg <- function(x, type = c("quantile", "pearson", "response"),
     #y <- if(is.null(x$y)) model.response(model.frame(x)) else x$y
     graphics::plot(stats::fitted(x), res,
                    xlab = "Fitted values", ylab = Type, pch = "+")
-    graphics::abline(h = 0, col = "gray50", lty = 2)
+    graphics::abline(h = 0, col = "gray50", lty = 3)
   }
 
   ## Residuals versus index observation
   if (show[2]){
     n <- x$nobs
     graphics::plot(1:n, res, xlab = "Index", ylab = Type, pch = "+")
-    graphics::abline(h = 0, col= "gray50", lty = 2)
+    graphics::abline(h = 0, col= "gray50", lty = 3)
   }
 
   ## Normal probability plot
@@ -502,12 +541,15 @@ plot.bergreg <- function(x, type = c("quantile", "pearson", "response"),
     graphics::abline(0, 1, col = "gray50", lty = 2)
   }
 
-  ## Fitted versus response
+  ## Expected frequencies
   if(show[4]) {
     y <- if(is.null(x$y)) stats::model.response(stats::model.frame(x)) else x$y
-    graphics::plot(y, stats::fitted(x), pch = "+",
-                   xlab = "Observed values", ylab = "Fitted values")
-    graphics::abline(0, 1, lty = 2, col = "gray")
+    obs <- as.numeric(table(y))
+    xcoord <- graphics::barplot(table(y), xlab = "Count", ylab = "Frequency",
+                   ylim = c(0, max(max(obs), max(x$freq)) + 0.5))
+    graphics::points(xcoord, x$freq, col = 2, type = "b", pch = 16)
+    graphics::legend("topright", "Fitted frequencies", col = 2, lty = 1, pch = 16,
+           bty = "n")
   }
 
   ## ACF of residuals
@@ -516,5 +558,6 @@ plot.bergreg <- function(x, type = c("quantile", "pearson", "response"),
                ylab = paste("Sample ACF of", type, "residuals"))
   }
 
+  invisible(x)
 
 }
