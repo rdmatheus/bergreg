@@ -74,6 +74,7 @@
 #' @author Rodrigo M. R. Medeiros <\email{rodrigo.matheus@live.com}>
 #'
 #' @examples
+#' \dontrun{
 #' # Dataset: grazing
 #' data(grazing)
 #' head(grazing)
@@ -101,7 +102,7 @@
 #' layout(matrix(c(1, 3, 5, 2, 4, 5), 3, 2))
 #' plot(fit, which = 1:5, ask = FALSE)
 #' layout(1)
-#'
+#' }
 NULL
 
 #' @rdname bergreg

@@ -91,6 +91,7 @@ The basic formula is of type \code{y ~ x1 + x2 + ... + xp} which
  (Zeileis and Croissant, 2010).
 }
 \examples{
+\dontrun{
 # Dataset: grazing
 data(grazing)
 head(grazing)
@@ -118,7 +119,7 @@ summary(fit)
 layout(matrix(c(1, 3, 5, 2, 4, 5), 3, 2))
 plot(fit, which = 1:5, ask = FALSE)
 layout(1)
-
+}
 }
 \references{
 Bourguignon, M. & Medeiros, R. (2021). A simple and useful regression model for fitting count data.
