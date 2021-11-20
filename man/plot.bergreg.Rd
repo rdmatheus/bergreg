@@ -15,9 +15,9 @@
 \arguments{
 \item{x}{an object of class \code{bergreg}.}
 
-\item{type}{character; specifies which residual should be produced
-in the summary plot. The available arguments are "quantile", "pearson",
-and "response" (raw residuals, y - mu).}
+\item{type}{character; specifies which residual should be produced in the
+envelope plot. The available options are \code{"quantile"} (default),
+\code{"pearson"}, and \code{"response"} (raw residuals, y - mu).}
 
 \item{which}{numeric; if a subset of the plots is required, specify a subset
 of the numbers 1:5.}

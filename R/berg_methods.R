@@ -478,9 +478,9 @@ model.matrix.bergreg <- function(object,
 #' of the residuals.
 #'
 #' @param x an object of class \code{bergreg}.
-#' @param type character; specifies which residual should be produced
-#'     in the summary plot. The available arguments are "quantile", "pearson",
-#'     and "response" (raw residuals, y - mu).
+#' @param type character; specifies which residual should be produced in the
+#'     envelope plot. The available options are \code{"quantile"} (default),
+#'     \code{"pearson"}, and \code{"response"} (raw residuals, y - mu).
 #' @param which numeric; if a subset of the plots is required, specify a subset
 #'     of the numbers 1:5.
 #' @param ask logical; if \code{TRUE}, the user is asked before each plot.
@@ -503,7 +503,7 @@ plot.bergreg <- function(x, type = c("quantile", "pearson", "response"),
 
   ## Legends
   types <- c("quantile", "pearson", "response")
-  Types <- c("Quantile residuals", "Pearson residuals", "Raw response residuals")
+  Types <- c("Randomized quantile residuals", "Pearson residuals", "Raw response residuals")
   Type <- Types[type == types]
 
   ## Graphical parameters setting
@@ -520,14 +520,14 @@ plot.bergreg <- function(x, type = c("quantile", "pearson", "response"),
   if (show[1]){
     #y <- if(is.null(x$y)) model.response(model.frame(x)) else x$y
     graphics::plot(stats::fitted(x), res,
-                   xlab = "Fitted values", ylab = Type, pch = "+")
+                   xlab = "Fitted values", ylab = Type, pch = "+", ...)
     graphics::abline(h = 0, col = "gray50", lty = 3)
   }
 
   ## Residuals versus index observation
   if (show[2]){
     n <- x$nobs
-    graphics::plot(1:n, res, xlab = "Index", ylab = Type, pch = "+")
+    graphics::plot(1:n, res, xlab = "Index", ylab = Type, pch = "+", ...)
     graphics::abline(h = 0, col= "gray50", lty = 3)
   }
 
@@ -537,7 +537,7 @@ plot.bergreg <- function(x, type = c("quantile", "pearson", "response"),
            xlab = "Theoretical Quantiles",
            ylab = "Sample Quantiles",
            plot.it = TRUE,
-           frame.plot = TRUE, pch =  "+")
+           frame.plot = TRUE, pch =  "+", ...)
     graphics::abline(0, 1, col = "gray50", lty = 2)
   }
 
@@ -546,7 +546,7 @@ plot.bergreg <- function(x, type = c("quantile", "pearson", "response"),
     y <- if(is.null(x$y)) stats::model.response(stats::model.frame(x)) else x$y
     obs <- as.numeric(table(y))
     xcoord <- graphics::barplot(table(y), xlab = "Count", ylab = "Frequency",
-                   ylim = c(0, max(max(obs), max(x$freq)) + 0.5))
+                   ylim = c(0, max(max(obs), max(x$freq)) + 0.5), ...)
     graphics::points(xcoord, x$freq, col = 2, type = "b", pch = 16)
     graphics::legend("topright", "Fitted frequencies", col = 2, lty = 1, pch = 16,
            bty = "n")
@@ -555,7 +555,7 @@ plot.bergreg <- function(x, type = c("quantile", "pearson", "response"),
   ## ACF of residuals
   if(show[5]) {
     stats::acf(res, main = " ", xlab = "Lags",
-               ylab = paste("Sample ACF of", type, "residuals"))
+               ylab = paste("Sample ACF of", type, "residuals"), ...)
   }
 
   invisible(x)
