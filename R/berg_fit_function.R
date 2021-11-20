@@ -99,9 +99,7 @@
 #'
 #' # Diagnostic
 #' layout(matrix(c(1, 3, 5, 2, 4, 5), 3, 2))
-#' plot(fit, ask = FALSE)
-#' plot(fit, which = 3:4, ask = FALSE)
-#' plot(fit, which = 5, ask = FALSE)
+#' plot(fit, which = 1:5, ask = FALSE)
 #' layout(1)
 #'
 NULL
