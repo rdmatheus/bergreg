@@ -1,3 +1,42 @@
+#' Hypothesis Test for Dispersion Index in the BerG Regression (Under Development)
+#'
+#' \code{disp_test} performs a hypothesis test on the coefficients associated
+#'     with the dispersion index in the BerG regression.
+#'
+#' @param object a 'bergreg' object.
+#' @param cols an integer vector specifying which regressors must be tested.
+#'    If \code{NULL} (default), a constant dispersion test is performed, that is,
+#'    all coefficients, with the exception of the intercept, are tested to be
+#'    equal to zero.
+#' @param gamma0 vector of the null hypothesis; if \code{NULL} (default) a
+#'    vector of zeros is passed to the constant dispersion test.
+#' @param res_start initial guess for the maximization of the log-likelihood
+#'  function restricted to the null hypothesis.
+#' @param control optimization control parameters.
+#' @param ... additional optimization parameters passed to the function \code{berg_control}.
+#'
+#' @return It returns a matrix with score, Wald, likelihood ratio, and gradient
+#'  statistics with the respective p-values.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Loading the 'grazing' dataset
+#' data(grazing)
+#' head(grazing)
+#'
+#' # Fitting a double model
+#' # birds ~ BerG(mu_i, phi_i)
+#' # log(mu_i) = beta_0 + beta_1 when_i + beta_2 grazed_i
+#' # log(mu_i) = gamma_0 + gamma_1 when_i + gamma_2 grazed_i
+#'
+#' fit <- bergreg(birds ~ when + grazed | when + grazed, grazing)
+#'
+#' # Test for constant dispersion
+#' # H0: gamma_1 = gamma_2 = 0
+#' disp_test(fit)
+#' }
+#'
 disp_test <- function(object, cols = NULL, gamma0 = NULL,
                       res_start = NULL,
                       control = berg_control(...), ...){
@@ -80,10 +119,10 @@ disp_test <- function(object, cols = NULL, gamma0 = NULL,
 
   #t(Ug2)%*%(theta_hat[(p + k - q + 1):(p + k)] - gamma0)
 
-  out <- matrix(c(S, pchisq(S, q, lower.tail = FALSE),
-                  W, pchisq(W, q, lower.tail = FALSE),
-                  LR, pchisq(LR, q, lower.tail = FALSE),
-                  G, pchisq(G, q, lower.tail = FALSE)), nrow = 2)
+  out <- matrix(c(S, stats::pchisq(S, q, lower.tail = FALSE),
+                  W, stats::pchisq(W, q, lower.tail = FALSE),
+                  LR, stats::pchisq(LR, q, lower.tail = FALSE),
+                  G, stats::pchisq(G, q, lower.tail = FALSE)), nrow = 2)
   rownames(out) <- c("value", "pvalue")
   colnames(out) <- c("Score","Wald","Lik. Ratio","Gradient")
   out
