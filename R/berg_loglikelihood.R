@@ -180,6 +180,6 @@ K_berg <- function(par, X, Z, link = "log", link.phi = "log", inverse = FALSE){
   K[1:p,1:p] <- Kbb; K[1:p,(p + 1):(p + k)] <- Kbg; K[(p + 1):(p + k),(1:p)] <- Kgb
   K[(p + 1):(p + k),(p + 1):(p + k)] <- Kgg
 
-  if(inverse) chol2inv(chol(K)) else K
+  if(inverse) solve(K) else K
 
 }
